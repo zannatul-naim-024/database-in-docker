@@ -1,0 +1,21 @@
+# HolmesGPT Configuration
+# This file configures the available toolsets for HolmesGPT
+
+toolsets:
+  # Docker toolset for container management and monitoring
+  docker/core:
+    enabled: true
+
+  # Kubernetes toolset (likely already configured)
+  kubernetes/core:
+    enabled: true
+
+  # Azure toolset (based on your existing setup)
+  azure/core:
+    enabled: true
+
+  # Additional toolsets can be added here
+  # datetime/core:
+  #   enabled: true
+  # prometheus/core:
+  #   enabled: true

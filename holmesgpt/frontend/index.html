@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HolmesGPT - Kubernetes AI Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-search"></i>
+                <h1>HolmesGPT</h1>
+            </div>
+            <div class="status" id="status">
+                <div class="status-indicator" id="statusIndicator"></div>
+                <span id="statusText">Connecting...</span>
+            </div>
+        </header>
+
+        <main class="main">
+            <div class="chat-container">
+                <div class="messages" id="messages">
+                    <div class="message system-message">
+                        <div class="message-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <p>Welcome to HolmesGPT! I'm your AI-powered Kubernetes troubleshooting assistant.</p>
+                            <p>Ask me questions like:</p>
+                            <ul>
+                                <li>"What pods are unhealthy in my cluster?"</li>
+                                <li>"Why is my deployment failing?"</li>
+                                <li>"Check the overall health of my cluster"</li>
+                                <li>"Investigate high CPU usage on worker nodes"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <form class="input-form" id="chatForm">
+                        <div class="input-wrapper">
+                            <input 
+                                type="text" 
+                                id="messageInput" 
+                                placeholder="Ask HolmesGPT about your Kubernetes cluster..."
+                                autocomplete="off"
+                            >
+                            <button type="submit" id="sendButton" disabled>
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-info-circle"></i> Quick Actions</h3>
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" data-query="What pods are unhealthy in my cluster?">
+                            <i class="fas fa-heartbeat"></i>
+                            Check Pod Health
+                        </button>
+                        <button class="quick-action-btn" data-query="What is the overall health of my cluster?">
+                            <i class="fas fa-chart-line"></i>
+                            Cluster Status
+                        </button>
+                        <button class="quick-action-btn" data-query="Show me any recent errors or failures">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Recent Errors
+                        </button>
+                        <button class="quick-action-btn" data-query="Check resource usage across nodes">
+                            <i class="fas fa-server"></i>
+                            Resource Usage
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-cog"></i> API Status</h3>
+                    <div class="api-info">
+                        <div class="api-item">
+                            <span class="api-label">Model:</span>
+                            <span class="api-value" id="modelInfo">Loading...</span>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-label">Endpoint:</span>
+                            <span class="api-value">localhost:8080</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-book"></i> Available Endpoints</h3>
+                    <div class="endpoints">
+                        <div class="endpoint">
+                            <span class="method get">GET</span>
+                            <span class="path">/api/model</span>
+                        </div>
+                        <div class="endpoint">
+                            <span class="method post">POST</span>
+                            <span class="path">/api/chat</span>
+                        </div>
+                        <div class="endpoint">
+                            <span class="method post">POST</span>
+                            <span class="path">/api/investigate</span>
+                        </div>
+                        <div class="endpoint">
+                            <span class="method post">POST</span>
+                            <span class="path">/api/workload_health_check</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

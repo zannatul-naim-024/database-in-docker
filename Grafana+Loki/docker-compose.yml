@@ -1,0 +1,35 @@
+services:
+  loki:
+    image: grafana/loki:2.9.0
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yml:/etc/loki/local-config.yaml
+      # - loki_data:/tmp/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    environment:
+      - JAEGER_AGENT_HOST=localhost  # Disable tracing
+      - JAEGER_ENABLED=false
+
+  promtail:
+    image: grafana/promtail:2.9.0
+    volumes:
+      - ./promtail-config.yml:/etc/promtail/config.yml
+      - /var/log:/var/log:ro
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+  loki-canary:
+    image: grafana/loki-canary:latest
+    ports:
+      - "3500:3500"  # Web UI port
+    depends_on:
+      - loki
+    command:
+      - -addr=loki:3100
+      - -port=3500
+      - -labelname=job
+      - -labelvalue=varlogs
+    
+volumes:
+  loki_data:

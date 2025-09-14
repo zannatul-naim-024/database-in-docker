@@ -1,0 +1,101 @@
+services:
+  holmesgpt-cli:
+    image: us-central1-docker.pkg.dev/genuine-flight-317411/devel/holmes:latest
+    container_name: holmesgpt-cli
+    network_mode: host
+    volumes:
+      # HolmesGPT configuration directory
+      - ~/.holmes:/root/.holmes
+      # Kubernetes configuration
+      - ~/.kube/config:/root/.kube/config:ro
+      # AWS credentials (if using AWS)
+      - ~/.aws:/root/.aws
+      # Google Cloud credentials (if using GCP)
+      - ~/.config/gcloud:/root/.config/gcloud:ro
+      # Azure credentials (if using Azure)
+      - ~/.azure:/root/.azure
+    environment:
+      # Optional: Set timezone
+      - TZ=UTC
+      # AI Model API Keys (uncomment and set as needed)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      # - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+      # - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+      # - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      # Cluster configuration
+      - CLUSTER_NAME=local-cluster
+      # Azure CLI configuration
+      - AZURE_CONFIG_DIR=/tmp/azure
+      # Enable bash toolset for Azure commands (use with caution)
+      - BASH_TOOL_UNSAFE_ALLOW_ALL=true
+    stdin_open: true
+    tty: true
+    # Keep container alive for CLI access with Azure setup
+    entrypoint: ["/usr/local/bin/azure-setup.sh", "tail", "-f", "/dev/null"]
+    restart: unless-stopped
+
+  # HolmesGPT API Server (for web interface)
+  holmesgpt-api:
+    image: us-central1-docker.pkg.dev/genuine-flight-317411/devel/holmes:latest
+    container_name: holmesgpt-api
+    network_mode: host
+    volumes:
+      # HolmesGPT configuration directory
+      - ~/.holmes:/root/.holmes
+      # Kubernetes configuration
+      - ~/.kube/config:/root/.kube/config:ro
+      # AWS credentials (if using AWS)
+      - ~/.aws:/root/.aws:ro
+      # Google Cloud credentials (if using GCP)
+      - ~/.config/gcloud:/root/.config/gcloud:ro
+      # Azure credentials (if using Azure)
+      - ~/.azure:/root/.azure:ro
+      # Azure setup script
+      - ./scripts/azure-setup.sh:/usr/local/bin/azure-setup.sh:ro
+    environment:
+      # Optional: Set timezone
+      - TZ=UTC
+      # AI Model API Keys (uncomment and set as needed)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      # - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+      # - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+      # - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      # Cluster configuration
+      - CLUSTER_NAME=local-cluster
+      # Azure CLI configuration
+      - AZURE_CONFIG_DIR=/tmp/azure
+      # Enable bash toolset for Azure commands (use with caution)
+      - BASH_TOOL_UNSAFE_ALLOW_ALL=true
+      # Server configuration
+      - HOLMES_HOST=0.0.0.0
+      - HOLMES_PORT=3000
+    ports:
+      - "3000:3000"
+    # Start the API server with Azure setup
+    entrypoint: ["/usr/local/bin/azure-setup.sh", "python", "/app/server.py"]
+    working_dir: /app
+    restart: unless-stopped
+    depends_on:
+      - holmesgpt-cli
+
+  # Frontend with API proxy
+  holmesgpt-frontend:
+    image: nginx:alpine
+    container_name: holmesgpt-frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+    depends_on:
+      - holmesgpt-api
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+# Optional: Create a custom network if not using host networking
+# networks:
+#   holmesgpt-network:
+#     driver: bridge
